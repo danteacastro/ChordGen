@@ -38,17 +38,19 @@ class MIDIClock:
 
     PPQN = 480  # Pulses Per Quarter Note (standard MIDI resolution)
 
-    def __init__(self, tempo: float = 120.0, time_signature: Tuple[int, int] = (4, 4)):
+    def __init__(self, tempo: float = 120.0, time_signature: Tuple[int, int] = (4, 4), external_sync: bool = False):
         """
         Initialize MIDI clock.
 
         Args:
             tempo: Tempo in BPM
             time_signature: (numerator, denominator) e.g., (4, 4)
+            external_sync: If True, sync to external MIDI clock
         """
         self.tempo = tempo
         self.time_signature = time_signature
         self.state = TransportState.STOPPED
+        self.external_sync = external_sync
 
         # Position tracking
         self.position = TimePosition()
@@ -64,6 +66,13 @@ class MIDIClock:
         self._clock_thread = None
         self._running = False
         self._lock = threading.Lock()
+
+        # External sync
+        self._midi_sync = None
+        if external_sync:
+            from .midi_sync import MIDIClockSync
+            self._midi_sync = MIDIClockSync()
+            self._setup_external_sync()
 
     @property
     def beats_per_bar(self) -> int:
@@ -285,3 +294,73 @@ class MIDIClock:
             self.position.beat = 1
             self.position.tick = 0
             self._update_tick_count()
+
+    def _setup_external_sync(self):
+        """Setup callbacks for external MIDI sync."""
+        if not self._midi_sync:
+            return
+
+        # Sync tempo changes
+        self._midi_sync.on_tempo_change(self._on_external_tempo_change)
+
+        # Sync transport
+        self._midi_sync.on_start(self._on_external_start)
+        self._midi_sync.on_stop(self._on_external_stop)
+
+        logger.info("External MIDI sync configured")
+
+    def _on_external_tempo_change(self, tempo: float):
+        """Handle tempo change from external clock."""
+        with self._lock:
+            self.tempo = tempo
+            logger.info(f"Tempo synced from external clock: {tempo:.1f} BPM")
+
+    def _on_external_start(self):
+        """Handle start from external clock."""
+        self.start()
+        logger.info("Started from external MIDI clock")
+
+    def _on_external_stop(self):
+        """Handle stop from external clock."""
+        self.stop()
+        logger.info("Stopped from external MIDI clock")
+
+    def enable_external_sync(self, port_name: Optional[str] = None) -> bool:
+        """
+        Enable external MIDI clock sync.
+
+        Args:
+            port_name: MIDI input port name (auto-detect if None)
+
+        Returns:
+            True if connected successfully
+        """
+        if not self._midi_sync:
+            from .midi_sync import MIDIClockSync
+            self._midi_sync = MIDIClockSync()
+            self._setup_external_sync()
+
+        if self._midi_sync.connect(port_name):
+            self._midi_sync.start_listening()
+            self.external_sync = True
+            logger.info("External MIDI sync enabled")
+            return True
+
+        return False
+
+    def disable_external_sync(self):
+        """Disable external MIDI clock sync."""
+        if self._midi_sync:
+            self._midi_sync.close()
+        self.external_sync = False
+        logger.info("External MIDI sync disabled")
+
+    def get_external_tempo(self) -> Optional[float]:
+        """Get tempo from external MIDI clock."""
+        if self._midi_sync:
+            return self._midi_sync.get_tempo()
+        return None
+
+    def is_externally_synced(self) -> bool:
+        """Check if synced to external clock."""
+        return self.external_sync and self._midi_sync is not None

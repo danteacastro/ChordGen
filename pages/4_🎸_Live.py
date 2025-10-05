@@ -17,6 +17,41 @@ if 'live_running' not in st.session_state:
 st.title("🎸 Live Performance")
 st.markdown("*Real-time MIDI control and performance*")
 
+# MIDI Sync Toggle
+sync_col1, sync_col2 = st.columns([1, 3])
+
+with sync_col1:
+    external_sync = st.checkbox("🔗 Sync to Ableton", value=st.session_state.midi_clock.is_externally_synced())
+
+with sync_col2:
+    if external_sync:
+        from chordgen.midi_sync import MIDIClockSync
+        sync = MIDIClockSync()
+        input_ports = sync.list_input_ports()
+
+        if input_ports:
+            sync_port = st.selectbox("MIDI Sync Input", input_ports, key="sync_port")
+
+            if st.button("🔗 Connect Sync"):
+                if st.session_state.midi_clock.enable_external_sync(sync_port):
+                    st.success(f"✅ Synced to {sync_port}")
+                    st.rerun()
+                else:
+                    st.error("Failed to connect")
+        else:
+            st.warning("No MIDI input ports found. Configure Ableton to send MIDI clock.")
+
+        # Show sync status
+        if st.session_state.midi_clock.is_externally_synced():
+            ext_tempo = st.session_state.midi_clock.get_external_tempo()
+            if ext_tempo:
+                st.info(f"🎵 Synced! Ableton tempo: {ext_tempo:.1f} BPM")
+    else:
+        if st.session_state.midi_clock.is_externally_synced():
+            st.session_state.midi_clock.disable_external_sync()
+
+st.divider()
+
 # Transport controls
 st.subheader("🎛️ Transport")
 
