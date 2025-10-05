@@ -1,0 +1,52 @@
+# Musical style presets
+
+styles:
+  "Indie / Synth-Pop":
+    tempo_range: [100, 130]
+    typical_tempo: 115
+    harmonic_rhythm: 1.0  # chords per beat
+    common_progressions:
+      - ["I", "V", "vi", "IV"]
+      - ["vi", "IV", "I", "V"]
+      - ["I", "IV", "vi", "V"]
+    chord_complexity: 1  # 0=triads, 1=7ths, 2=extensions
+
+  "Neo-Soul / Jazz":
+    tempo_range: [70, 100]
+    typical_tempo: 85
+    harmonic_rhythm: 0.5
+    common_progressions:
+      - ["ii", "V", "I"]
+      - ["I", "vi", "ii", "V"]
+      - ["iii", "vi", "ii", "V"]
+    chord_complexity: 2
+
+  "Lo-Fi / Bedroom":
+    tempo_range: [70, 95]
+    typical_tempo: 80
+    harmonic_rhythm: 1.0
+    common_progressions:
+      - ["I", "iii", "vi", "IV"]
+      - ["vi", "IV", "V", "I"]
+      - ["I", "V", "IV", "IV"]
+    chord_complexity: 1
+
+  "House / Disco":
+    tempo_range: [118, 130]
+    typical_tempo: 124
+    harmonic_rhythm: 2.0  # slower chord changes
+    common_progressions:
+      - ["I", "IV", "V", "IV"]
+      - ["vi", "IV", "I", "V"]
+      - ["ii", "V", "I", "IV"]
+    chord_complexity: 0
+
+  "Ambient":
+    tempo_range: [60, 85]
+    typical_tempo: 72
+    harmonic_rhythm: 4.0  # very slow changes
+    common_progressions:
+      - ["I", "vi", "IV", "V"]
+      - ["I", "IV", "V", "I"]
+      - ["vi", "I", "V", "IV"]
+    chord_complexity: 2

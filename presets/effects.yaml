@@ -1,0 +1,48 @@
+# Ableton effects chain presets per style
+# This file can be customized for different genres
+
+"Indie / Synth-Pop":
+  Chords:
+    - device: "EQ Eight"
+      params:
+        HP: 60
+        shelf_high: "+2 dB @ 8k"
+    - device: "Chorus-Ensemble"
+      params:
+        amount: 35
+        rate: 0.8
+    - device: "Compressor"
+      params:
+        ratio: 2.5
+        threshold: -18
+    - device: "Reverb"
+      params:
+        size: 55
+        wet: 18
+
+  Bass:
+    - device: "EQ Eight"
+      params:
+        LP: 120
+        HP: 40
+    - device: "Saturator"
+      params:
+        drive: 3.0
+    - device: "Glue Compressor"
+      params:
+        ratio: 3.0
+        makeup: 2
+
+  "Pad/Lead":
+    - device: "Auto Filter"
+      params:
+        mode: "LP"
+        freq_Hz: 2000
+    - device: "Delay"
+      params:
+        sync: "1/4"
+        feedback: 35
+    - device: "Reverb"
+      params:
+        size: 70
+        wet: 22
